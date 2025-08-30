@@ -111,6 +111,7 @@ export default function WebIDE() {
   const [isRunning, setIsRunning] = useState(false);
   const [activeTab, setActiveTab] = useState('editor');
   const [aiInput, setAiInput] = useState('');
+  const [terminalInput, setTerminalInput] = useState('');
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set(['src', 'src/app']));
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -165,27 +166,99 @@ export default function WebIDE() {
     addTerminalOutput('Development server stopped', 'warning');
   };
 
-  const handleAiSubmit = () => {
+  const handleAiSubmit = async () => {
     if (!aiInput.trim()) return;
     
     addTerminalOutput(`AI Query: ${aiInput}`, 'info');
     addTerminalOutput('AI is processing your request...', 'info');
     
-    // Simulate AI processing
-    setTimeout(() => {
-      addTerminalOutput('AI response: I can help you with that! Here are some suggestions...', 'success');
-      setAiInput('');
-    }, 1500);
+    try {
+      const response = await fetch('/api/ai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: aiInput,
+          context: `Current file: ${activeFile}\nLanguage: ${getLanguageFromPath(activeFile)}\n\nCode:\n${activeFileContent}`
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        addTerminalOutput('AI response received:', 'success');
+        addTerminalOutput('Generated code has been added to the editor.', 'success');
+        
+        // Add the generated code as a new file or append to current file
+        const newFileName = `ai-generated-${Date.now()}.${getLanguageFromPath(activeFile).toLowerCase()}`;
+        const newFile: FileItem = {
+          id: Date.now().toString(),
+          name: newFileName,
+          path: newFileName,
+          content: result.code,
+          language: getLanguageFromPath(activeFile),
+          modified: false,
+          type: 'file'
+        };
+        
+        setFiles(prev => [...prev, newFile]);
+        setActiveFile(newFileName);
+      } else {
+        addTerminalOutput(`AI Error: ${result.error}`, 'error');
+      }
+    } catch (error) {
+      addTerminalOutput('AI Error: Failed to connect to AI service', 'error');
+    }
+    
+    setAiInput('');
   };
 
-  const handleAiAction = (action: string) => {
+  const handleAiAction = async (action: string) => {
     addTerminalOutput(`AI Action: ${action}`, 'info');
     addTerminalOutput('AI is analyzing your code...', 'info');
     
-    // Simulate AI processing
-    setTimeout(() => {
-      addTerminalOutput(`${action} completed successfully!`, 'success');
-    }, 2000);
+    try {
+      const actionMap: Record<string, string> = {
+        'Explain Code': 'explain',
+        'Find Bugs': 'find-bugs',
+        'Security Scan': 'security-scan',
+        'Optimize': 'optimize'
+      };
+      
+      const aiAction = actionMap[action] || 'explain';
+      
+      const response = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: aiAction,
+          code: activeFileContent
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        addTerminalOutput(`${action} completed successfully!`, 'success');
+        addTerminalOutput('Analysis results:', 'info');
+        
+        // Show the analysis in chunks to avoid terminal overflow
+        const analysisLines = result.analysis.split('\n');
+        analysisLines.forEach((line: string, index: number) => {
+          setTimeout(() => {
+            addTerminalOutput(line, 'info');
+          }, index * 100);
+        });
+      } else {
+        addTerminalOutput(`AI Error: ${result.error}`, 'error');
+      }
+    } catch (error) {
+      addTerminalOutput('AI Error: Failed to connect to AI service', 'error');
+      console.error('AI error:', error);
+    }
   };
 
   const handleTestAction = (action: string) => {
@@ -214,6 +287,46 @@ export default function WebIDE() {
   const handleSettings = () => {
     addTerminalOutput('Settings panel would open here', 'info');
     addTerminalOutput('Available settings: Theme, Editor preferences, AI settings', 'info');
+  };
+
+  const handleTerminalCommand = async () => {
+    if (!terminalInput.trim()) return;
+    
+    const command = terminalInput.trim();
+    addTerminalOutput(`$ ${command}`, 'info');
+    
+    try {
+      const response = await fetch('/api/terminal/execute', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ command }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        if (result.output) {
+          const outputLines = result.output.trim().split('\n');
+          outputLines.forEach((line: string) => {
+            if (line.trim()) {
+              addTerminalOutput(line, 'success');
+            }
+          });
+        }
+        if (result.error) {
+          addTerminalOutput(result.error, 'warning');
+        }
+      } else {
+        addTerminalOutput(`Error: ${result.error}`, 'error');
+      }
+    } catch (error) {
+      addTerminalOutput('Failed to execute command', 'error');
+      console.error('Terminal error:', error);
+    }
+    
+    setTerminalInput('');
   };
 
   const toggleFolder = (folderPath: string) => {
@@ -540,7 +653,7 @@ export default function WebIDE() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-[calc(100vh-140px)] bg-black text-green-400 font-mono text-sm p-2">
+              <ScrollArea className="h-[calc(100vh-180px)] bg-black text-green-400 font-mono text-sm p-2">
                 {terminalOutputs.map(output => (
                   <div key={output.id} className="mb-1">
                     <span className="text-gray-500">
@@ -562,6 +675,29 @@ export default function WebIDE() {
                   </div>
                 )}
               </ScrollArea>
+              <div className="border-t border-gray-700 p-2 bg-black">
+                <div className="flex items-center gap-2">
+                  <span className="text-green-400 font-mono text-sm">$</span>
+                  <input
+                    type="text"
+                    value={terminalInput}
+                    onChange={(e) => setTerminalInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleTerminalCommand();
+                    }}
+                    placeholder="Type a command..."
+                    className="flex-1 bg-transparent text-green-400 font-mono text-sm outline-none placeholder:text-gray-500"
+                  />
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    onClick={handleTerminalCommand}
+                    className="h-6 w-6 p-0 text-green-400 hover:text-green-300"
+                  >
+                    <Play className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </ResizablePanel>
