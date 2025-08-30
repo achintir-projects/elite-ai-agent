@@ -1,0 +1,40 @@
+{
+  "name": "@ai-app-builder/core",
+  "version": "0.1.0",
+  "description": "Core AI App Builder engine with multi-agent orchestration",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@ai-app-builder/shared": "workspace:*",
+    "z-ai-web-dev-sdk": "^0.0.10",
+    "uuid": "^11.1.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/ws": "^8",
+    "@types/uuid": "^10",
+    "typescript": "^5",
+    "jest": "^29",
+    "@types/jest": "^29",
+    "ts-jest": "^29",
+    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "^7",
+    "@typescript-eslint/parser": "^7"
+  },
+  "keywords": [
+    "ai",
+    "code-generation",
+    "multi-agent",
+    "orchestration"
+  ],
+  "author": "AI App Builder Team",
+  "license": "MIT"
+}

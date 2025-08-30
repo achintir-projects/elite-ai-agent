@@ -1,0 +1,42 @@
+{
+  "name": "@ai-app-builder/rtl-tools",
+  "version": "0.1.0",
+  "description": "RTL/Hardware design tools for AI App Builder",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@ai-app-builder/shared": "workspace:*",
+    "execa": "^9.3.0",
+    "fs-extra": "^11.2.0",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/fs-extra": "^11",
+    "typescript": "^5",
+    "jest": "^29",
+    "@types/jest": "^29",
+    "ts-jest": "^29",
+    "eslint": "^9",
+    "@typescript-eslint/eslint-plugin": "^7",
+    "@typescript-eslint/parser": "^7"
+  },
+  "keywords": [
+    "rtl",
+    "verilog",
+    "systemverilog",
+    "vhdl",
+    "hardware",
+    "fpga",
+    "asic"
+  ],
+  "author": "AI App Builder Team",
+  "license": "MIT"
+}

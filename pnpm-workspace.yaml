@@ -1,0 +1,8 @@
+packages:
+  - 'packages/*'
+  - 'packages/core'
+  - 'packages/web-ide'
+  - 'packages/vscode-extension'
+  - 'packages/packager'
+  - 'packages/rtl-tools'
+  - 'packages/shared'

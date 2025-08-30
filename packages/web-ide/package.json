@@ -1,0 +1,48 @@
+{
+  "name": "@ai-app-builder/web-ide",
+  "version": "0.1.0",
+  "description": "Web-based IDE with Monaco editor for AI App Builder",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next export"
+  },
+  "dependencies": {
+    "@ai-app-builder/core": "workspace:*",
+    "@ai-app-builder/shared": "workspace:*",
+    "@monaco-editor/react": "^4.6.0",
+    "next": "15.3.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "socket.io-client": "^4.8.1",
+    "xterm": "^5.3.0",
+    "xterm-addon-fit": "^0.8.0",
+    "zustand": "^5.0.6",
+    "@radix-ui/react-tabs": "^1.1.12",
+    "@radix-ui/react-resize": "^1.1.0",
+    "lucide-react": "^0.525.0",
+    "tailwindcss": "^4",
+    "clsx": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "typescript": "^5",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.5",
+    "@tailwindcss/postcss": "^4"
+  },
+  "keywords": [
+    "ide",
+    "monaco",
+    "web",
+    "ai",
+    "code-editor"
+  ],
+  "author": "AI App Builder Team",
+  "license": "MIT"
+}
