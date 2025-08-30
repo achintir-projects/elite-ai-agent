@@ -3,22 +3,35 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
-  // 禁用 Next.js 热重载，由 nodemon 处理重编译
-  reactStrictMode: false,
-  webpack: (config, { dev }) => {
-    if (dev) {
-      // 禁用 webpack 的热模块替换
-      config.watchOptions = {
-        ignored: ['**/*'], // 忽略所有文件变化
-      };
-    }
-    return config;
+  reactStrictMode: true,
+  output: 'standalone',
+  trailingSlash: false,
+  distDir: '.next',
+  images: {
+    unoptimized: true,
   },
   eslint: {
-    // 构建时忽略ESLint错误
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
+  },
+  // Handle favicon gracefully
+  async headers() {
+    return [
+      {
+        source: '/favicon.ico',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
+  // Remove custom webpack config that might cause issues in Netlify
+  webpack: (config) => {
+    return config;
   },
 };
 
