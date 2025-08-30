@@ -1,26 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import dynamic from 'next/dynamic';
-
-// Dynamically import Monaco Editor to avoid SSR issues
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { 
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center h-full bg-muted">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-        <p className="text-sm text-muted-foreground">Loading editor...</p>
-      </div>
-    </div>
-  )
-});
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Play, 
   Square, 
@@ -428,25 +415,14 @@ export default function WebIDE() {
                       </div>
                     </div>
                     
-                    {/* Monaco Editor */}
-                    <div className="flex-1">
-                      <MonacoEditor
-                        height="100%"
-                        language={getLanguageFromPath(activeFile)}
+                    {/* Simple Textarea Editor */}
+                    <div className="flex-1 p-4">
+                      <Textarea
                         value={activeFileContent}
-                        onChange={(value) => handleFileChange(value || '')}
-                        theme="vs-dark"
-                        options={{
-                          minimap: { enabled: false },
-                          fontSize: 14,
-                          lineNumbers: 'on',
-                          roundedSelection: false,
-                          scrollBeyondLastLine: false,
-                          automaticLayout: true,
-                          wordWrap: 'on',
-                          folding: true,
-                          showFoldingControls: 'always'
-                        }}
+                        onChange={(e) => handleFileChange(e.target.value)}
+                        className="h-full w-full font-mono text-sm resize-none border-none focus:ring-0 p-0"
+                        placeholder="Start coding..."
+                        spellCheck={false}
                       />
                     </div>
                   </div>
